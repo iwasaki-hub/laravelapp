@@ -43,6 +43,8 @@ $html = <<<EOF
 </html>
 EOF;
 
+Route::get("/helloo", [HelloController::class, "index"]);
+
 Route::get("/hello", function () {
     return '<html><body><h1>Hello</h1><p>This is ample page.</p></body></html>';
 });
