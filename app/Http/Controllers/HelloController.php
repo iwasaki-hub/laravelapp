@@ -7,8 +7,18 @@ use Illuminate\Http\Response;
 
 class HelloController extends Controller
 {
-   public function index(Request $request, Response $response){
-    
+   public function index(Request $request, Response $response, $id="zero"){
+
+    $date = [
+        "msg"=>"", 
+        "id"=>$request->id
+    ];
+    $data = [
+        "one", "two","three","four"
+    ];
+
+    return view("hello.index", $date, ["data"=>$data]);
+    return 
     $html = <<<EOF
     <html>
     <head>
@@ -44,5 +54,16 @@ class HelloController extends Controller
     return $response;
    }
 
+//    POST送信された時の処理
+   public function post(Request $request){
+        $msg = $request->msg;
+        $data =[
+            "msg"=>"こんにちは" . $msg . "さん！", 
+        ];
+        return view("hello.index", $data);
+   }
+
+
+  
      
 }

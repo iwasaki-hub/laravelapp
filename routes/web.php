@@ -43,10 +43,13 @@ $html = <<<EOF
 </html>
 EOF;
 
-Route::get("/helloo", [HelloController::class, "index"]);
+Route::get("/helloo/{id?}", [HelloController::class, "index"]);
+
+Route::post("/helloo",[HelloController::class, "post"]);
+
 
 Route::get("/hello", function () {
-    return '<html><body><h1>Hello</h1><p>This is ample page.</p></body></html>';
+    return view('hello.index');
 });
 
 // ヒアドキュメント
