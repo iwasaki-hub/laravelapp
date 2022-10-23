@@ -1,104 +1,169 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <style>
-        body{
-            font-size: 16px;
-            color: #999;
-        }
-        h1{
-            font-size: 100px;
-            text-align: right;
-            color: gray;
-            margin: 50px 0px 5r0px 0px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Blade/Index</h1>
-    <p>{{$msg}}</p>
-    {{-- <p>{{$id}}</p> --}}
-    <hr>
+@extends('layouts.helloapp')
 
-    {{-- @ifディレクティブ --}}
-    @if ($msg != '')
-        <p>Hello, {{$msg}}</p>
-    @else
-        <p>Input your name from if ディレクティブ</p>
-    @endif
+@section('title', "Index")
 
-    {{-- @issetディレクティブ --}}
-    @isset($msg)
-    <p>Hello, {{$msg}} from isset ディレクティブ</p>
-    @else
-    <p>Input your name from isset ディレクティブ</p>
-    @endisset
-    
-    {{-- @foreachディレクティブ --}}
-    <p>&#064;foreachディレクティブの例</p>
-    <ol>
+@section('menubar')
+    @parent
+    インデックスページ
+@endsection
+
+@section('content')
+    <p>ここが本文のコンテンツです。</p>
+    <p>必要なだけ記述できます。</p>
+
+    @component('components.message')
+    {{-- @slotは、{{}}で指定された変数に値を設定する --}}
+    @slot('msg_title')
+    CAUTION!
+    @endslot
+
+    @slot('msg_content')
+    これはメッセージの表示です。
+    @endslot
+    @endcomponent
+
+    {{-- サブビューとして読み込む --}}
+    @include('components.message', ["msg_title"=>"OK", "msg_content"=>"サブビューです。"])
+
+    {{-- @eachを使って、表示 --}}
+    <p>ここが本文のコンテンツです。</p>
+    <ul>
+        {{-- @each('components.item', $data, "item") --}}
+    </ul>
+
+    {{-- ビューコンポーザーを利用する --}}
+    <p>ここが本文のコンテンツです。</p>
+    {{-- <p>Controller value<br>"message" = {{$message}}</p> --}}
+    <p>ViewComposer value<br>"view_message" = {{$view_message}}</p>
+
+    {{-- ミドルウェアの変数$dataを表示 --}}
+    <p>ここが本文のコンテンツです。</p>
+    {{-- <table>
         @foreach ($data as $item)
-            <li>{{$item}}</li>
+        <tr>
+            <th>{{$item['name']}}</th>
+            <td>{{$item['mail']}}</td>
+        </tr>      
         @endforeach
-    </ol>
+    </table> --}}
 
-    {{-- @forディレクティブ --}}
-    <p>&#064;forディレクティブの例</p>
-    <ol>
-        @for ($i = 1; $i < 100; $i++)
+    {{-- 後処理ミドルウェアを追加 --}}
+    <p>ここが本文のコンテンツです。</p>
+    <p>これは、<middleware>google.com</middleware>へのリンクです。</p>
+    <p>これは、<middleware>yahoo.co.jp</middleware>へのリンクです。</p>
 
-        @if ($i % 2 == 1)
-            @continue
-        @elseif ($i <= 10)
-        <li>No, {{$i}}</li>
-        @else
-            @break
-        @endif
-        @endfor
-    </ol>
-
-    {{-- $loopディレクティブ --}}
-    <p>&#064;loopディレクティブの例</p>
-    @foreach ($data as $item)
-
-    @if ($loop->first)
-    <p>※データ一覧</p><ul>   
+    {{-- バリデーション --}}
+    <p>{{$msg}}</p>
+    {{-- バリデーションのエラーメッセージ --}}
+    @if (count($errors) > 0 )
+        <p style="font-size: 20px; color: red;">入力に問題があります。再入力して下さい</p>
     @endif
-    <li>No, {{$loop->iteration}} . {{$item}}</li>
-    @if ($loop->last)
-    </ul><p>---ここまで</p>
+
+    {{-- 一括表示 --}}
+    @if (count($errors) > 0 ){
+        <div>
+            <ul style="color: red">
+                @foreach($errors->all() as $error)
+                <li>{{ $error}}</li>
+                @endforeach
+            </ul>
+        </div>
+    }
     @endif
-    @endforeach
 
-    {{-- $whileディレクティブ --}}
-    <p>&#064;whileディレクティブの例</p>
-    <ol>
-        @php
-            $counter = 0;
-        @endphp
-        @while ($counter < count($data))
-            <li>{{$data[$counter]}}</li>
-        @php
-            $counter++;
-        @endphp    
-        @endwhile
-    </ol>
+    <form action="/helloo" method="POST">
+        <table>
+            @csrf
+            
+            @if ($errors->has('name'))
+                <tr><th>ERROR</th><td style="color: brown">{{$errors->first('name')}}</td></tr>
+                {{-- すべてのエラーを取得 get()--}}
+                    <tr><th>ERROR</th>
+                    @foreach ($errors->get("name") as $message)
+                    <td style="color: brown">
+                        {{$message}}
+                    </td>
+                    @endforeach
+                    </tr>
+            @endif
+            <tr>
+                <th>Name: </th><td><input type="text" name="name" value="{{old('name')}}" placeholder="Name..."></td>
+            </tr>
 
-    {{-- /hellooにPOSTされる --}}
-    <form method="POST" action="/helloo">
-        {{-- Bladeディレクティブ --}}
-        {{-- CSRF対策 --}}
-        @csrf
-        <input type="text" name="msg">
-        <input type="submit">
-        
+            @if ($errors->has('mail'))
+            <tr><th>ERROR</th><td style="color: brown">{{$errors->first('mail')}}</td></tr>
+            @endif
 
+            {{-- @errorディレクティブ --}}
+            @error('mail')
+                <tr>
+                    <th>Error</th>
+                    <td style="color: blue">{{$message}} from Errorディレクティブ </td>
+                </tr>
+            @enderror
+
+            <tr>
+                <th>Mail: </th><td><input type="mail" name="mail" value="{{old('mail')}}" placeholder="Mail..."></td>
+            </tr>
+
+            @if ($errors->has('age'))
+            <tr><th>ERROR</th><td style="color: brown">{{$errors->first('age')}}</td></tr>
+            @endif
+
+             {{-- @errorディレクティブ --}}
+             @error('age')
+             <tr>
+                 <th>Error</th>
+                 <td style="color: blue">{{$message}} from Errorディレクティブ </td>
+             </tr>
+            @enderror
+
+            <tr>
+                <th>Age: </th><td><input type="number" name="age" value="{{old('age')}}"placeholder="Age..."></td>
+            </tr>
+
+            <tr>
+                <th></th><td><input type="submit" value="send"></td>
+            </tr>
+        </table>
     </form>
-</body>
-</html>
+
+
+    <h3 style="color: black">クッキーの読み書き</h3>
+    <p>{{$msg}}</p>
+    @if (count($errors) > 0)
+    <p>入力に問題があります。再入力してください。from クッキーフォーム</p>    
+    @endif
+    <form action="/helloo" method="POST">
+        <table>
+            @csrf
+            @if ($errors->has("msg"))
+                <tr><th>ERROR</th><td>{{$errors->first('msg')}}</td></tr>
+            @endif
+            <tr>
+                <th>Message: </th>
+                <td><input type="text" name="msg" value="{{old("msg")}}"></td>
+            </tr>
+
+            <tr>
+                <th></th>
+                <td><input type="submit" value="send"></td>
+            </tr>
+        </table>
+    </form>
+
+    
+
+
+    
+    
+@endsection
+
+@section('footer')
+    copyright 2022 tuyano.
+@endsection
+
+
+
 
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HelloController;
+use App\Http\Middleware\HeloMiddleware;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,9 +44,16 @@ $html = <<<EOF
 </html>
 EOF;
 
-Route::get("/helloo/{id?}", [HelloController::class, "index"]);
+Route::get("/helloo/{id?}", [HelloController::class, "index"])->middleware('hello');
 
-Route::post("/helloo",[HelloController::class, "post"]);
+// middlewareを利用する
+// Route::get("/helloo/{id?}", [HelloController::class, "index"])->middleware(HeloMiddleware::class);
+
+// Cookie
+Route::post("/helloo",[HelloController::class, "postCookie"]);
+
+// Validate
+// Route::post("/helloo",[HelloController::class, "postValidate"]);
 
 
 Route::get("/hello", function () {

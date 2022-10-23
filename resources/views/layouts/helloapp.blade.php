@@ -6,6 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title')</title>
     <style>
+        *{
+            border: 1px solid blue;
+            margin: 2%;
+            padding: 2%;
+        }
         body{
             font-size: 16px;
             color: #999999;
@@ -57,6 +62,5 @@
     <div class="footer">
         @yield('footer')
     </div>
-    @endsection
 </body>
 </html>
