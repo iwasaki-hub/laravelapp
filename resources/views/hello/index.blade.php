@@ -152,6 +152,30 @@
         </table>
     </form>
 
+    <h3 style="color: black">DBへのアクセス</h3>
+    <table>
+        <tr><th>ID</th><th>Name</th><th>Mail</th><th>Age</th></tr>
+        <tr><th>Update</th><th>Show</th><th></th><th>Delete</th></tr>
+        @foreach ($items as $item)
+            <tr>
+                <td>
+                    <a href="/helloo/edit?id={{$item->id}}">{{$item->id}}</a>
+                </td>
+                <td>
+                    <a href="/helloo/show?id={{$item->id}}">{{$item->name}}</a>
+                </td>
+                <td>{{$item->mail}}</td>
+                <td >
+                    <a href="/helloo/del?id={{$item->id}}" 
+                        style="color: red">
+                        {{$item->age}}</a>
+                </td>
+            </tr>
+        @endforeach
+    </table>
+
+
+
     
 
 

@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\BoardController;
 use App\Http\Controllers\HelloController;
+use App\Http\Controllers\PersonCOntroller;
 use App\Http\Middleware\HeloMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +45,41 @@ $html = <<<EOF
     </body>
 </html>
 EOF;
+
+
+// Person
+Route::get('/person', [PersonCOntroller::class, "index"]);
+Route::get('/person/find', [PersonCOntroller::class, "find"]);
+Route::post('/person/find', [PersonCOntroller::class, "search"]);
+Route::get('/person/add', [PersonCOntroller::class, 'add']);
+Route::post('/person/add', [PersonCOntroller::class, 'create']);
+Route::get('/person/edit', [PersonCOntroller::class, 'edit']);
+Route::post('/person/edit', [PersonCOntroller::class, 'update']);
+Route::get('/person/del', [PersonCOntroller::class, 'delete']);
+Route::post('/person/del', [PersonCOntroller::class, 'remove']);
+
+// Borad
+Route::get('/board', [BoardController::class, "index"]);
+
+Route::get('/board/add', [BoardController::class, "add"]);
+Route::post('/board/add', [BoardController::class, "create"]);
+
+
+
+
+// DBセクション
+Route::get("/helloo/add", [HelloController::class, "add"]);
+Route::post("/helloo/add", [HelloController::class, "create"]);
+
+Route::get('/helloo/edit', [HelloController::class, "edit"]);
+Route::post('/helloo/edit', [HelloController::class, "update"]);
+
+Route::get('/helloo/del', [HelloController::class, "del"]);
+Route::post('/helloo/del', [HelloController::class, "remove"]);
+
+Route::get('/helloo/show',  [HelloController::class, "show"]);
+
+
 
 Route::get("/helloo/{id?}", [HelloController::class, "index"])->middleware('hello');
 

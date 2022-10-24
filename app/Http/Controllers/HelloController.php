@@ -5,11 +5,30 @@ namespace App\Http\Controllers;
 use App\Http\Requests\HelloRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class HelloController extends Controller
 {
    public function index(Request $request, Response $response, $id="zero"){
+
+    
+    // クエリビルダ
+    // 並び順 orderBy()
+    $items = DB::table('people')->orderBy("age", "asc")->get();
+    return view('hello.index', ['items' => $items, "msg" => "クエリビルダ"]);
+    
+    
+    // DBへのアクセス
+    if(isset($request->id)){
+        $param = ['id' => $request->id];
+        $items = DB::select("select * from people where id = :id", $param);
+    }else{
+        $items = DB::select("select * from people");
+    }
+
+    
+
        
     // クッキーを保存
     if($request->hasCookie("msg")){
@@ -43,7 +62,7 @@ class HelloController extends Controller
     };
 
 
-    return view("hello.index", $date, ["data"=>$data,"message"=>"Hello!", "data"=>$request->data, "msg" =>$msg,]);
+    return view("hello.index", $date, ["data"=>$data,"message"=>"Hello!", "data"=>$request->data, "msg" =>$msg, "items" => $items]);
     return
     $html = <<<EOF
     <html>
@@ -149,6 +168,114 @@ class HelloController extends Controller
      $response->cookie("msg", $msg, 100);
      return $response;
    }
+
+//    入力フォームの表示
+   public function add(Request $request)
+   {
+    return view('hello.add');
+   }
+
+//    Createメソッド
+   public function create(Request $request)
+   {
+     $param = [
+        'name' => $request->name,
+        "mail" => $request->mail,
+        "age" => $request->age,
+     ];
+
+    //  旧
+     DB::insert('INSERT INTO people (name, mail, age) values (:name, :mail, :age)', $param);
+
+    //  クエリビルダでの記述
+    DB::table("people")->insert($param);
+
+     return redirect('/helloo');
+   }
+
+   public function edit(Request $request)
+   {
+    //  旧
+    $param = ['id' => $request->id];
+    $item = DB::select("SELECT * FROM people WHERE id = :id", $param);
+
+    //  クエリビルダでの記述
+    $item = DB::table("people")->where("id", $request->id)->first();
+
+
+    // return view('hello.edit', ['form' => $item[0]]);
+    return view('hello.edit', ['form' => $item]);
+   }
+
+   public function update(Request $request)
+   {
+    $param = [
+        "id" => $request->id,
+        "name" => $request->name,
+        "mail" => $request->mail,
+        "age" => $request->age,
+    ];
+
+    //  旧
+    DB::update("UPDATE people SET name = :name, mail = :mail, age = :age WHERE id = :id", $param);
+
+    //  クエリビルダでの記述
+    DB::table("people")->where("id", $request->id)->update($param);
+
+    return redirect('/helloo');
+   }
+
+   public function del(Request $request)
+   {
+
+    //  旧
+    $param = ['id' => $request->id];
+    $item = DB::select("SELECT * FROM people WHERE id = :id", $param);
+
+    //  クエリビルダでの記述
+    $item = DB::table("people")->where("id", $request->id)->first();
+
+
+    // return view('hello.delete', ['form' => $item[0]]);
+    return view('hello.delete', ['form' => $item]);
+   }
+
+   public function remove(Request $request)
+   {
+
+    //  旧
+    $param = ['id' => $request->id];
+    DB::delete("DELETE FROM people WHERE id = :id", $param);
+
+    //  クエリビルダでの記述
+    DB::table('people')->where('id', $request->id)->delete();
+
+
+    return redirect('/helloo');
+   }
+
+   public function show(Request $request)
+   {
+    $id = $request->id;
+    // 最初のレコードだけを返す first() オブジェクトが戻ってくる
+    $item = DB::table("people")->where("id", $id)->first();
+    // 複数のレコードを取得
+    $items = DB::table("people")->where("id", '<=', $id)->get();
+    // 複数の条件
+    $name = $request->name;
+    $items = DB::table("people")->where("name", 'like', '%' . $name . '%')->orWhere("mail", 'like', '%' . $name . '%')->get();
+    // whereRaw
+    $min = $request->min;
+    $max = $request->max;
+    $items = DB::table("people")->whereRaw("age >= ? and age <= ?", [$min, $max])->get();
+    // offset limit
+    $page = $request->page;
+    $items = DB::table("people")->offset($page * 3)->limit(3)->get();
+
+
+    return view('hello.show', ['item' => $item, 'items' => $items]);
+   }
+
 
 
   
