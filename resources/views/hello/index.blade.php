@@ -1,4 +1,25 @@
 @extends('layouts.helloapp')
+<style>
+    .pagination{
+        font-size: 10px;
+    }
+    .pagination li{
+        display: inline-block;
+    }
+
+    tr th a:link{
+        color: white;
+    }
+    tr th a:visited{
+        color: white;
+    }
+    tr th a:hover{
+        color: white;
+    }
+    tr th a:active{
+        color: white;
+    }
+</style>
 
 @section('title', "Index")
 
@@ -53,7 +74,7 @@
     <p>これは、<middleware>yahoo.co.jp</middleware>へのリンクです。</p>
 
     {{-- バリデーション --}}
-    <p>{{$msg}}</p>
+    {{-- <p>{{$msg}}</p> --}}
     {{-- バリデーションのエラーメッセージ --}}
     @if (count($errors) > 0 )
         <p style="font-size: 20px; color: red;">入力に問題があります。再入力して下さい</p>
@@ -130,7 +151,7 @@
 
 
     <h3 style="color: black">クッキーの読み書き</h3>
-    <p>{{$msg}}</p>
+    {{-- <p>{{$msg}}</p> --}}
     @if (count($errors) > 0)
     <p>入力に問題があります。再入力してください。from クッキーフォーム</p>    
     @endif
@@ -174,13 +195,52 @@
         @endforeach
     </table>
 
+    <h3>Pagenation</h3>
+    <div>
+        <table>
+            <tr><th>ID</th><th>Name</th><th>Mail</th><th>Age</th></tr>
+            @foreach ($items as $item)
+                <tr>
+                    <td>{{$item->id}}</td>
+                    <td>{{$item->name}}</td>
+                    <td>{{$item->mail}}</td>
+                    <td>{{$item->age}}</td>
+                </tr>
+            @endforeach
+        </table>
+        {{ $items->links()}}
+    </div>
+
+    {{-- sort --}}
+    <h3>Sort</h3>
+    <table>
+        <tr>
+            <th><a href="/hello?sort=name">Name</a></th>
+            <th><a href="/hello?sort=mail">Mail</a></th>
+            <th><a href="/hello?sort=age">Age</a></th>
+        </tr>
+        @foreach ($items as $item)
+            <tr>
+                <td>{{$item->name}}</td>
+                <td>{{$item->mail}}</td>
+                <td>{{$item->age}}</td>
+            </tr>
+        @endforeach
+    </table>
+    {{ $items->appends(['sort' => $sort])->links()}} 
+
+    {{-- login --}}
+    <h3>Login</h3>
+    @if (Auth::check())
+        <p>USER: {{$user->name . ' (' . $user->email . ')'}}</p>
+    @else
+        <p>ログインしていません。<br>
+            （<a href="/login">ログイン</a>|
+            <a href="/register">登録</a>）
+        </p>
+    @endif
 
 
-    
-
-
-    
-    
 @endsection
 
 @section('footer')

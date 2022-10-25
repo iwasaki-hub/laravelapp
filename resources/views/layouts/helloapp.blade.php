@@ -81,6 +81,8 @@
         <a href="/helloo">Hello</a>
         <a href="/person">Person</a>
         <a href="/board">Board</a>
+        <a href="/hello/auth">ログイン画面</a>
+
     </nav>
 
     {{-- <h1>@yield('title')</h1>

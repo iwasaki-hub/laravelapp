@@ -3,6 +3,7 @@
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\HelloController;
 use App\Http\Controllers\PersonCOntroller;
+use App\Http\Controllers\RestappController;
 use App\Http\Middleware\HeloMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +47,10 @@ $html = <<<EOF
 </html>
 EOF;
 
+// Auth
+Route::get('/hello/auth', [HelloController::class, "getAuth"]);
+Route::post('/hello/auth', [HelloController::class, "postAuth"]);
+
 
 // Person
 Route::get('/person', [PersonCOntroller::class, "index"]);
@@ -60,9 +65,17 @@ Route::post('/person/del', [PersonCOntroller::class, 'remove']);
 
 // Borad
 Route::get('/board', [BoardController::class, "index"]);
-
 Route::get('/board/add', [BoardController::class, "add"]);
 Route::post('/board/add', [BoardController::class, "create"]);
+
+// RestApp
+Route::resource("rest", RestappController::class);
+Route::get('/hello/rest', [HelloController::class, "rest"]);
+
+// Session
+Route::get('/hello/session', [HelloController::class, "session_get"]);
+Route::post('/hello/session', [HelloController::class, "session_put"]);
+
 
 
 
@@ -81,7 +94,7 @@ Route::get('/helloo/show',  [HelloController::class, "show"]);
 
 
 
-Route::get("/helloo/{id?}", [HelloController::class, "index"])->middleware('hello');
+Route::get("/helloo/{id?}", [HelloController::class, "index"])->middleware('hello')->middleware('auth');
 
 // middlewareを利用する
 // Route::get("/helloo/{id?}", [HelloController::class, "index"])->middleware(HeloMiddleware::class);
@@ -139,3 +152,7 @@ Route::get('/hello3/index', [HelloController::class, 'index2']);
 Route::get('/hello3/other', [HelloController::class, 'other']);
 Route::get('/hello3/{id?}/{pass?}', [HelloController::class, 'index']);
 
+
+
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

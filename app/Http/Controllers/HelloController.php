@@ -3,20 +3,51 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\HelloRequest;
+use App\Models\Person;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class HelloController extends Controller
 {
+
    public function index(Request $request, Response $response, $id="zero"){
 
+    function noUse() {
+        
+        // クエリビルダ
+        // 並び順 orderBy()
+        $items = DB::table('people')->orderBy("age", "asc")->get();
+
+    }
+
+    // rogin
+    $user = Auth::user();
+    $sort = $request->sort;
+    $items = Person::orderBy($sort, "asc")->simplePaginate(5);
+    $param = ['items' => $items, "sort" => $sort, 'user' => $user];
+    return view('hello.index', $param);
+
     
-    // クエリビルダ
-    // 並び順 orderBy()
-    $items = DB::table('people')->orderBy("age", "asc")->get();
-    return view('hello.index', ['items' => $items, "msg" => "クエリビルダ"]);
+
+
+    //　ペジネーション
+    $items = DB::table("people")->simplePaginate(5);
+    //　ペジネーション(昇順)
+    $items = DB::table("people")->orderBy("age", "asc")->simplePaginate(5);
+    //　ペジネーション(昇順) Personクラスからでも可能
+    $items = Person::orderBy("age", "asc")->simplePaginate(5);
+
+    // sort
+    $sort = $request->sort;
+    // $items = DB::table('people')->orderBy($sort, "asc")->simplePaginate(5);
+    $items = Person::orderBy($sort, "asc")->simplePaginate(5);
+    $param = ['items' => $items, 'sort' => $sort];
+    return view('hello.index',$param, ['items' => $items, "msg" => "クエリビルダ"]);
+
+    
     
     
     // DBへのアクセス
@@ -275,6 +306,42 @@ class HelloController extends Controller
 
     return view('hello.show', ['item' => $item, 'items' => $items]);
    }
+
+    //    RestApp
+   public function rest(Request $request){
+    return view('hello.rest');
+   }
+
+    //    session
+   public function session_get(Request $request){
+    $sessionData = $request->session()->get("msg");
+    return view('hello.session', ['session_data' => $sessionData]);
+   }
+
+   public function session_put(Request $request){
+    $msg = $request->input;
+    $request->session()->put("msg", $msg);
+    return redirect('/hello/session');
+   }
+
+    //    auth関連
+    public function getAuth(Request $request){
+        $param =['message' => 'ログインしてください。'];
+        return view('hello.auth', $param);
+    }
+
+    public function postAuth(Request $request){
+        $email = $request->email;
+        $password = $request->password;
+        if(Auth::attempt(['email' => $email, 'password' => $password])){
+            $msg = 'ログインしました。（' . Auth::user()->name . '）';
+        }else{
+            $msg = 'ログインに失敗しました。';
+        }
+        return view('hello.auth', ['message' => $msg]);
+    }
+
+
 
 
 
